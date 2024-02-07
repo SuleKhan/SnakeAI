@@ -7,9 +7,12 @@ SCREEN_HEIGHT = 720
 FPS = 10
 
 BLOCK_SIZE = 20
+EYE_SIZE = BLOCK_SIZE // 5
 
 SNAKE_COL = (0, 255, 0)
+EYE_COL = (255, 0, 0)
 FOOD_COL = (255, 0, 0)
+FONT_COL = (255, 255, 255)
 
 class Direction(Enum):
     RIGHT = 1
@@ -109,12 +112,34 @@ class Snake:
     def draw(self, screen):
         pygame.draw.rect(screen, SNAKE_COL, pygame.Rect(self.head.x, self.head.y, BLOCK_SIZE, BLOCK_SIZE))
 
+        closerBias = (BLOCK_SIZE // 3) - EYE_SIZE
+        furtherBias = ((BLOCK_SIZE * 2) // 3)
+        shiftBias = BLOCK_SIZE // 4
+
+        if self.head.dir == Direction.UP:
+            pygame.draw.rect(screen, EYE_COL, pygame.Rect(self.head.x + closerBias, self.head.y + shiftBias, EYE_SIZE, EYE_SIZE))
+            pygame.draw.rect(screen, EYE_COL, pygame.Rect(self.head.x + furtherBias, self.head.y + shiftBias, EYE_SIZE, EYE_SIZE))
+        elif self.head.dir == Direction.RIGHT:
+            pygame.draw.rect(screen, EYE_COL, pygame.Rect(self.head.x + BLOCK_SIZE - shiftBias - EYE_SIZE, self.head.y + closerBias, EYE_SIZE, EYE_SIZE))
+            pygame.draw.rect(screen, EYE_COL, pygame.Rect(self.head.x + BLOCK_SIZE - shiftBias - EYE_SIZE, self.head.y + furtherBias, EYE_SIZE, EYE_SIZE))
+        elif self.head.dir == Direction.DOWN:
+            pygame.draw.rect(screen, EYE_COL, pygame.Rect(self.head.x + closerBias, self.head.y + BLOCK_SIZE - shiftBias - EYE_SIZE, EYE_SIZE, EYE_SIZE))
+            pygame.draw.rect(screen, EYE_COL, pygame.Rect(self.head.x + furtherBias, self.head.y + BLOCK_SIZE - shiftBias - EYE_SIZE, EYE_SIZE, EYE_SIZE))
+        elif self.head.dir == Direction.LEFT:
+            pygame.draw.rect(screen, EYE_COL, pygame.Rect(self.head.x + shiftBias, self.head.y + closerBias, EYE_SIZE, EYE_SIZE))
+            pygame.draw.rect(screen, EYE_COL, pygame.Rect(self.head.x + shiftBias, self.head.y + furtherBias, EYE_SIZE, EYE_SIZE))
+
         for block in self.body:
             pygame.draw.rect(screen, SNAKE_COL, pygame.Rect(block.x, block.y, BLOCK_SIZE, BLOCK_SIZE))
+    
+    def getBodyLength(self):
+        return len(self.body)
 
 class SnakeGame:
     def __init__(self):
         pygame.init()
+        pygame.font.init()
+        self.font = pygame.font.SysFont("arial", 30)
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
         self.snake = Snake()
@@ -144,6 +169,11 @@ class SnakeGame:
         self.screen.fill((0, 0, 0))
         self.food.draw(self.screen)
         self.snake.draw(self.screen)
+        self.draw_score()
+    
+    def draw_score(self):
+        text = self.font.render(f"Score: {self.snake.getBodyLength()}", False, FONT_COL)
+        self.screen.blit(text, (BLOCK_SIZE//2, BLOCK_SIZE//2))
 
     def get_action(self):
         for event in pygame.event.get():
