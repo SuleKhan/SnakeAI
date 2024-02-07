@@ -92,6 +92,20 @@ class Snake:
     def isEating(self, food):
         return self.head.get_pos() == food.get_pos()
 
+    def hasHitWall(self):
+        x, y = self.head.get_pos()
+        return x < 0 or x > SCREEN_WIDTH - 1 or y < 0 or y > SCREEN_HEIGHT - 1
+
+    def hasHitSelf(self):
+        for block in self.body:
+            if self.head.get_pos() == block.get_pos():
+                return True
+        
+        return False
+
+    def isColliding(self):
+        return self.hasHitSelf() or self.hasHitWall()
+
     def draw(self, screen):
         pygame.draw.rect(screen, SNAKE_COL, pygame.Rect(self.head.x, self.head.y, BLOCK_SIZE, BLOCK_SIZE))
 
@@ -111,15 +125,18 @@ class SnakeGame:
         new_dir = self.get_action()
         self.snake.move(new_dir)
 
-        if self.snake.isEating(self.food):
-            self.food.shuffle()
-            self.snake.grow()
+        if self.snake.isColliding():
+            self.game_over = True
+        else:       
+            if self.snake.isEating(self.food):
+                self.food.shuffle()
+                self.snake.grow()
 
-        self.draw()
+            self.draw()
 
-        pygame.display.flip()
+            pygame.display.flip()
 
-        self.clock.tick(FPS)  # limits FPS to 60
+            self.clock.tick(FPS)  # limits FPS to 60
 
         return self.game_over
     
