@@ -122,19 +122,19 @@ class SnakeGame:
         self.game_over = False
 
     def play_step(self):
-        new_dir = self.get_action()
-        self.snake.move(new_dir)
+        new_dir = self.get_action() # get new dir
+        self.snake.move(new_dir) # move snake in new dir
 
-        if self.snake.isColliding():
+        if self.snake.isColliding(): # check is snake is colliding with anything
             self.game_over = True
-        else:       
-            if self.snake.isEating(self.food):
+        else: # if collided, no need to redraw
+            if self.snake.isEating(self.food): # check if snake is on food
                 self.food.shuffle()
                 self.snake.grow()
 
-            self.draw()
+            self.draw() # draw snake + food
 
-            pygame.display.flip()
+            pygame.display.flip() # apply changes to screen
 
             self.clock.tick(FPS)  # limits FPS to 60
 
