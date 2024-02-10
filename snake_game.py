@@ -47,6 +47,15 @@ class Head(Block):
     def __init__(self, x, y, dir):
         super().__init__(x, y)
         self.dir = dir
+        self.old_x = 0
+        self.old_y = 0
+    
+    def get_old_pos(self):
+            return (self.old_x, self.old_y)
+    
+    def set_old_pos(self):
+        self.old_x = self.x
+        self.old_y = self.y
 
     def move(self, dir):
         if dir == Direction.UP and self.dir != Direction.DOWN:
@@ -83,14 +92,17 @@ class Snake:
         self.head = Head(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, Direction.RIGHT)
         self.body = []
 
-    def move(self, dir):
-        if len(self.body) > 0: 
-            self.body.pop(0)
-            self.body.append(Block(*self.head.get_pos()))
+    def move_head(self, dir):
+        self.head.set_old_pos()
         self.head.move(dir)
 
+    def move_body(self):
+        if len(self.body) > 0: 
+            self.body.pop(0)
+            self.body.append(Block(*self.head.get_old_pos()))
+
     def grow(self):
-        self.body.append(Block(*self.head.get_pos()))
+        self.body.append(Block(*self.head.get_old_pos()))
 
     def isEating(self, food):
         return self.head.get_pos() == food.get_pos()
@@ -148,7 +160,7 @@ class SnakeGame:
 
     def play_step(self):
         new_dir = self.get_action() # get new dir
-        self.snake.move(new_dir) # move snake in new dir
+        self.snake.move_head(new_dir) # move snake in new dir
 
         if self.snake.isColliding(): # check is snake is colliding with anything
             self.game_over = True
@@ -156,6 +168,8 @@ class SnakeGame:
             if self.snake.isEating(self.food): # check if snake is on food
                 self.food.shuffle()
                 self.snake.grow()
+            else:
+                self.snake.move_body()
 
             self.draw() # draw snake + food
 
