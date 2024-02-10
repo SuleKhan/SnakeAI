@@ -160,7 +160,7 @@ class Snake:
     def getBodyLength(self):
         return len(self.body)
 
-class SnakeGame:
+class SnakeGameAI:
     def __init__(self):
         pygame.init()
         pygame.font.init()
